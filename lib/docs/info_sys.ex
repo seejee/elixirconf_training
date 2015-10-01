@@ -14,15 +14,17 @@ defmodule Docs.InfoSys do
     |> Enum.map(fn backend ->
       Supervisor.start_child(Docs.InfoSys.Supervisor, [backend, [
         client_pid: self,
-        expr: expr,
+        expr: expr
       ]])
     end)
-    |> Enum.map(fn
+    |> Stream.map(fn
       {:ok, pid} -> {Process.monitor(pid), pid}
-      _          -> nil
+      _ -> nil
     end)
-    |> Enum.map(&receive_results(&1))
-    |> Enum.filter(&(&1))
+    |> Stream.filter(&(&1))
+    |> Stream.map(&receive_results(&1))
+    |> Stream.filter(&(&1))
+    |> Enum.sort_by(fn result -> result.score end, &>/2)
   end
 
   defp receive_results({ref, pid}) do
