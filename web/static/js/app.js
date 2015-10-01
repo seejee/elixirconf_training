@@ -28,8 +28,21 @@ socket.onOpen( () => console.log('connected asdsd') )
 
 let App = {
   init() {
-    let docId   = 123
+    let docId   = $('#doc-form').data('id')
     let docChan = socket.channel("documents:" + docId)
+    let editor  = new Quill("#editor")
+
+    editor.on("text-change", (ops, source) => {
+      if(source !== "user"){ return }
+
+      //snake case event names are idiomatic
+      docChan.push("text_change", {ops: ops})
+        .receive("ok", resp => console.log("ok") )
+    })
+
+    docChan.on("text_change", ({ops}) => {
+      editor.updateContents(ops)
+    })
 
     docChan.join()
       .receive("ok",    resp   => console.log("joined", resp) )
