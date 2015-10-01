@@ -63,13 +63,13 @@ defmodule Docs.DocumentChannel do
   end
 
 
-  def handle_in("compute_image", params, socket) do
+  def handle_in("compute_img", params, socket) do
     img_url = case Docs.InfoSys.compute_img(params["expr"]) do
       [%{img_url: img_url} | _] -> img_url
       _ -> ""
     end
 
-    broadcast! socket, "insert_image", %{
+    broadcast! socket, "insert_img", %{
       start: params["start"],
       end: params["end"],
       url: img_url

@@ -61,10 +61,10 @@ let App = {
         let {start, end} = editor.getSelection()
         let expr         = editor.getText(start, end)
 
-        docChan.push("compute_image", {expr, start, end})
+        docChan.push("compute_img", {expr, start, end})
     })
 
-    docChan.on("insert_image", ({url, start, end}) => {
+    docChan.on("insert_img", ({url, start, end}) => {
       console.log(arguments)
       editor.deleteText(start, end)
       editor.insertEmbed(start, 'image', url)
