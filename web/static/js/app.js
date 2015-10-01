@@ -72,20 +72,21 @@ let App = {
       editor.updateContents(ops)
     })
 
+    docChan.on("messages", ({messages}) => {
+      //fired on every join
+      messages.forEach( m => {
+        this.appendMessage(docChan, m, msgContainer)
+      })
+    })
+
     docForm.on("submit", e => {
       e.preventDefault()
       this.save(docChan, editor)
     })
 
-    docChan.join() //{last_message_id: Xxx} to help ids 
-      .receive("ok",    ({messages}) => {
-        //fired on every join
-        messages.forEach( m => {
-          this.appendMessage(docChan, m, msgContainer)
-        })
-      })
-      .receive("error", reason      => console.log("join error", reason) )
-
+    docChan.join() //{last_message_id: Xxx} to help ids
+      .receive("ok",    resp    => console.log("Joined.") )
+      .receive("error", reason  => console.log("join error", reason) )
   },
 
   save(docChan, editor) {

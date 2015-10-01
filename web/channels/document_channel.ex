@@ -2,9 +2,14 @@ defmodule Docs.DocumentChannel do
   use Docs.Web, :channel
 
   def join("documents:" <> doc_id, params, socket) do
-    doc             = Repo.get(Document, doc_id)
-    last_message_id = params["last_message_id"] || 0
+    send(self, {:after_join, params})
+    {:ok, assign(socket, :doc_id, doc_id)}
+    # or :error
+  end
 
+  def handle_info({:after_join, params}, socket) do
+    doc             = Repo.get(Document, socket.assigns.doc_id)
+    last_message_id = params["last_message_id"] || 0
     messages = Repo.all(
       from m in assoc(doc, :messages),
       order_by: [asc: m.inserted_at],
@@ -13,8 +18,8 @@ defmodule Docs.DocumentChannel do
       limit: 100
     )
 
-    {:ok, %{messages: messages}, assign(socket, :doc_id, doc_id)}
-    # or :error
+    push socket, "messages", %{messages: messages}
+    {:noreply, socket}
   end
 
   # enfore the shape of the data here rather than relaying the raw params
