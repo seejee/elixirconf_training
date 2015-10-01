@@ -37,7 +37,22 @@ let App = {
     let docChan   = socket.channel("documents:" + docId)
     let editor    = new Quill("#editor")
     let docForm   = $("#doc-form")
+
+    let msgContainer = $('#messages')
+    let msgInput     = $('#message-input')
+
     let saveTimer = null
+
+    msgInput.on('keypress', e => {
+        if(e.which !== 13) { return }
+
+        docChan.push("new_message", {body: msgInput.val()})
+        msgInput.val("")
+    })
+
+    docChan.on("new_message", msg => {
+      this.appendMessage(msg, msgContainer)
+    })
 
     editor.on("text-change", (ops, source) => {
       if(source !== "user"){ return }
@@ -71,6 +86,11 @@ let App = {
     let title = $('#document_title').val()
     docChan.push("save", {body: body, title: title})
       .receive("ok",    resp   => console.log("saved", resp) )
+  },
+
+  appendMessage(msg, msgContainer) {
+    msgContainer.append(`<br/> ${msg.body}`)
+    msgContainer.scrollTop(msgContainer.prop("scrollHeight"))
   }
 }
 
