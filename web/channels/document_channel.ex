@@ -17,4 +17,17 @@ defmodule Docs.DocumentChannel do
 
     {:reply, :ok, socket}
   end
+
+  def handle_in("save", params, socket) do
+    Document
+    |> Repo.get(socket.assigns.doc_id)
+    |> Document.changeset(params)
+    |> Repo.update()
+    |> case do
+      {:ok, _document}    ->
+        {:reply, :ok, socket }
+      {:error, changeset} ->
+        {:reply, {:error, %{reasons: changeset}}, socket} # will serialize error messages
+    end
+  end
 end

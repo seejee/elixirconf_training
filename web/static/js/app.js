@@ -31,6 +31,7 @@ let App = {
     let docId   = $('#doc-form').data('id')
     let docChan = socket.channel("documents:" + docId)
     let editor  = new Quill("#editor")
+    let docForm = $("#doc-form")
 
     editor.on("text-change", (ops, source) => {
       if(source !== "user"){ return }
@@ -47,6 +48,15 @@ let App = {
     docChan.join()
       .receive("ok",    resp   => console.log("joined", resp) )
       .receive("error", reason => console.log("join error", reason) )
+
+    docForm.on("submit", e => {
+        e.preventDefault()
+        let body  = editor.getHTML()
+        let title = $('#document_title').val()
+        docChan.push("save", {body: body, title: title})
+          .receive("ok",    resp   => console.log("saved", resp) )
+    })
+
   }
 }
 
