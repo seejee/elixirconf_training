@@ -1,5 +1,6 @@
 defmodule Docs.DocumentChannel do
   use Docs.Web, :channel
+  import SweetXml
 
   def join("documents:" <> doc_id, params, socket) do
     send(self, {:after_join, params})
@@ -62,16 +63,29 @@ defmodule Docs.DocumentChannel do
     end
   end
 
-  # pattern match here
+  defp app_id(), do: Application.get_env(:docs, :wolfram)[:app_id]
+
   def handle_in("compute_image", params, socket) do
-    image_url = "http://i.imgur.com/hVV8q3v.jpg"
+    input = URI.encode(params["expr"])
+    {:ok, {_, _, body}} = :httpc.request(String.to_char_list(
+      "http://api.wolframalpha.com/v2/query?appid=#{app_id()}&input=#{input}&format=image,plaintext"
+    ))
+
+    img_url =
+      body
+      |> xpath(~x"/queryresult/pod[contains(@title, 'Result') or
+                                contains(@title, 'Results') or
+                                contains(@title, 'Plot')]
+                          /subpod/img/@src")
+      |> to_string()
+
+
 
     broadcast! socket, "insert_image", %{
       start: params["start"],
-      end:   params["end"],
-      url:   image_url
+      end: params["end"],
+      url: img_url
     }
-
-    {:reply, :ok, socket }
+    {:reply, :ok, socket}
   end
 end
