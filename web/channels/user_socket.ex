@@ -2,7 +2,7 @@ defmodule Docs.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "rooms:*", Docs.RoomChannel
+  channel "documents:*", Docs.DocumentChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket, check_origin: false

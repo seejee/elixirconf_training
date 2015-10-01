@@ -64,6 +64,8 @@ defmodule Docs.Web do
       import Ecto.Model
       import Ecto.Query, only: [from: 2]
 
+      # don't just put functions here.
+      # if you want to share stuff, make a module for it
     end
   end
 

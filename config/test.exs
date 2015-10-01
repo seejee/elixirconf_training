@@ -12,7 +12,5 @@ config :logger, level: :warn
 # Configure your database
 config :docs, Docs.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
   database: "docs_test",
   pool: Ecto.Adapters.SQL.Sandbox
