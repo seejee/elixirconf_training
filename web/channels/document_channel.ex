@@ -1,8 +1,19 @@
 defmodule Docs.DocumentChannel do
   use Docs.Web, :channel
 
-  def join("documents:" <> doc_id, _params, socket) do
-    {:ok, assign(socket, :doc_id, doc_id)}
+  def join("documents:" <> doc_id, params, socket) do
+    doc             = Repo.get(Document, doc_id)
+    last_message_id = params["last_message_id"] || 0
+
+    messages = Repo.all(
+      from m in assoc(doc, :messages),
+      order_by: [asc: m.inserted_at],
+      select: %{id: m.id, body: m.body},
+      where: m.id > ^last_message_id,
+      limit: 100
+    )
+
+    {:ok, %{messages: messages}, assign(socket, :doc_id, doc_id)}
     # or :error
   end
 
