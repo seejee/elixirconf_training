@@ -26,8 +26,15 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 socket.connect()
 socket.onOpen( () => console.log('connected asdsd') )
 
-let docChan = socket.channel("documents:" + docId)
+let App = {
+  init() {
+    let docId   = 123
+    let docChan = socket.channel("documents:" + docId)
 
-docChan.join()
-  .receive("ok",    resp   => console.log("joined", resp) )
-  .receive("error", reason => console.log("join error", reason) )
+    docChan.join()
+      .receive("ok",    resp   => console.log("joined", resp) )
+      .receive("error", reason => console.log("join error", reason) )
+  }
+}
+
+App.init()
