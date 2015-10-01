@@ -39,8 +39,9 @@ let App = {
     let docChan   = socket.channel("documents:" + docId)
     docChan.params["last_message_id"] = 0
 
-    let editor    = new Quill("#editor")
-    let docForm   = $("#doc-form")
+    let editor          = new Quill("#editor")
+    let editorContainer = $('#editor')
+    let docForm         = $("#doc-form")
 
     let msgContainer = $('#messages')
     let msgInput     = $('#message-input')
@@ -52,6 +53,21 @@ let App = {
 
         docChan.push("new_message", {body: msgInput.val()})
         msgInput.val("")
+    })
+
+    editorContainer.on('keydown', e => {
+        if(!(e.which === 13 && e.metaKey)) { return }
+
+        let {start, end} = editor.getSelection()
+        let expr         = editor.getText(start, end)
+
+        docChan.push("compute_image", {expr, start, end})
+    })
+
+    docChan.on("insert_image", ({url, start, end}) => {
+      console.log(arguments)
+      editor.deleteText(start, end)
+      editor.insertEmbed(start, 'image', url)
     })
 
     docChan.on("new_message", msg => {

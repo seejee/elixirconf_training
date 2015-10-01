@@ -61,4 +61,17 @@ defmodule Docs.DocumentChannel do
         {:reply, {:error, %{reasons: changeset}}, socket} # will serialize error messages
     end
   end
+
+  # pattern match here
+  def handle_in("compute_image", params, socket) do
+    image_url = "http://i.imgur.com/hVV8q3v.jpg"
+
+    broadcast! socket, "insert_image", %{
+      start: params["start"],
+      end:   params["end"],
+      url:   image_url
+    }
+
+    {:reply, :ok, socket }
+  end
 end
